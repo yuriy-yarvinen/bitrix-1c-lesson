@@ -1,18 +1,18 @@
 import { Type } from 'main.core';
 
 import { Utils } from 'im.v2.lib.utils';
-import { FileViewerContext } from 'im.v2.const';
-import { VideoPlayer } from	'im.v2.component.elements';
-
-import { ProgressBar } from './progress-bar';
+import { FileViewerContext, FileStatus } from 'im.v2.const';
+import { VideoPlayer } from	'im.v2.component.elements.videoplayer';
+import { ProgressBar } from 'im.v2.component.elements.progressbar';
+import { Outline } from 'ui.icon-set.api.vue';
 
 import '../../css/items/video.css';
 
 import type { ImModelFile, ImModelMessage } from 'im.v2.model';
 
 const VIDEO_SIZE_TO_AUTOPLAY = 5_000_000;
-const MAX_WIDTH = 420;
-const MAX_HEIGHT = 340;
+const MAX_WIDTH = 460;
+const MAX_HEIGHT = 380;
 const MIN_WIDTH = 200;
 const MIN_HEIGHT = 100;
 const DEFAULT_WIDTH = 320;
@@ -32,11 +32,8 @@ export const VideoItem = {
 			type: Object,
 			required: true,
 		},
-		handleLoading: {
-			type: Boolean,
-			default: true,
-		},
 	},
+	emits: ['cancelClick'],
 	computed:
 	{
 		messageItem(): ImModelMessage
@@ -124,6 +121,27 @@ export const VideoItem = {
 
 			window.open(this.file.urlDownload, '_blank');
 		},
+		onCancelClick(event)
+		{
+			this.$emit('cancelClick', event);
+		},
+		getHandleStatus(): Array<string>
+		{
+			return [
+				FileStatus.preparing,
+				FileStatus.progress,
+				FileStatus.upload,
+			];
+		},
+		getStatusMap(): { [key: string]: { iconClass: string, labelText: string } }
+		{
+			return {
+				[FileStatus.preparing]: {
+					iconClass: Outline.CLOUD,
+					labelText: this.$Bitrix.Loc.getMessage('IM_MESSAGE_FILE_PREPARING_PROGRESS_LABEL'),
+				},
+			};
+		},
 	},
 	template: `
 		<div
@@ -131,7 +149,12 @@ export const VideoItem = {
 			:class="{'--with-forward': isForward}"
 			@click="download"
 		>
-			<ProgressBar v-if="!isLoaded && handleLoading" :item="file" :messageId="messageItem.id" />
+			<ProgressBar 
+				:item="file"
+				:handleStatus="getHandleStatus()"
+				:statusMap="getStatusMap()"
+				@cancelClick="onCancelClick"
+			/>
 			<VideoPlayer
 				:fileId="file.id"
 				:src="file.urlDownload"

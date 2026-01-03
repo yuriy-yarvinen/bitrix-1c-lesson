@@ -3,8 +3,12 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,ui_notification,call_component_callButton,im_v2_component_animation,im_v2_lib_utils,im_v2_lib_analytics,ui_vue3,im_v2_component_dialog_chat,im_v2_component_textarea,im_v2_lib_theme,im_v2_lib_textarea,im_v2_component_sidebar,im_v2_lib_bulkActions,ui_uploader_core,main_core,main_core_events,ui_vue3_directives_hint,im_v2_application_core,im_v2_const,im_v2_lib_permission,im_v2_component_elements,im_v2_component_entitySelector,im_v2_lib_confirm,im_v2_provider_service) {
+(function (exports,call_component_callButton,im_v2_component_elements_loader,im_v2_component_animation,im_v2_component_elements_chatTitle,im_v2_component_elements_avatar,im_v2_lib_utils,ui_vue3,im_v2_component_dialog_chat,im_v2_component_textarea,im_v2_lib_theme,im_v2_lib_textarea,im_v2_component_sidebar,im_v2_lib_bulkActions,ui_uploader_core,main_core,im_v2_provider_service_uploading,im_v2_provider_service_chat,main_core_events,ui_vue3_directives_hint,im_v2_application_core,im_v2_lib_analytics,im_v2_const,im_v2_lib_permission,im_v2_component_elements_button,im_v2_component_entitySelector,im_v2_lib_confirm,im_v2_provider_service_message) {
 	'use strict';
+
+	const {
+	  callInstalled
+	} = main_core.Extension.getSettings('im.v2.lib.call');
 
 	// @vue/component
 	const CallHeaderButton = {
@@ -24,6 +28,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
 	    componentToRender() {
+	      if (!callInstalled) {
+	        return null;
+	      }
 	      return call_component_callButton.CallButton;
 	    }
 	  },
@@ -115,29 +122,27 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	};
 
 	// @vue/component
-	const GroupChatTitle = {
-	  name: 'GroupChatTitle',
-	  components: {
-	    EditableChatTitle: im_v2_component_elements.EditableChatTitle,
-	    EntityLink,
-	    LineLoader: im_v2_component_elements.LineLoader,
-	    FadeAnimation: im_v2_component_animation.FadeAnimation
-	  },
-	  inject: ['withSidebar'],
+	const UserCounter = {
+	  name: 'UserCounter',
+	  inject: ['currentSidebarPanel', 'withSidebar'],
 	  props: {
 	    dialogId: {
 	      type: String,
 	      required: true
 	    }
 	  },
-	  emits: ['membersClick', 'newTitle'],
 	  computed: {
 	    dialog() {
 	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
-	    hasEntityLink() {
-	      var _this$dialog$entityLi;
-	      return Boolean((_this$dialog$entityLi = this.dialog.entityLink) == null ? void 0 : _this$dialog$entityLi.url);
+	    sidebarTooltipText() {
+	      return this.withSidebar ? this.loc('IM_CONTENT_CHAT_HEADER_OPEN_MEMBERS') : '';
+	    },
+	    isMembersPanelActive() {
+	      return this.currentSidebarPanel === im_v2_const.SidebarDetailBlock.members;
+	    },
+	    needShowSubtitleCursor() {
+	      return this.withSidebar;
 	    },
 	    userCounterPhraseCode() {
 	      var _UserCounterPhraseCod;
@@ -147,21 +152,65 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return main_core.Loc.getMessagePlural(this.userCounterPhraseCode, this.dialog.userCounter, {
 	        '#COUNT#': this.dialog.userCounter
 	      });
-	    },
-	    needShowSubtitleCursor() {
-	      return this.withSidebar;
-	    },
-	    sidebarTooltipText() {
-	      return this.withSidebar ? this.loc('IM_CONTENT_CHAT_HEADER_OPEN_MEMBERS') : '';
 	    }
 	  },
 	  methods: {
 	    onMembersClick() {
-	      if (!this.withSidebar) {
+	      if (this.isMembersPanelActive) {
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.close, {
+	          panel: im_v2_const.SidebarDetailBlock.members
+	        });
 	        return;
 	      }
-	      this.$emit('membersClick');
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.open, {
+	        panel: im_v2_const.SidebarDetailBlock.members,
+	        dialogId: this.dialogId
+	      });
 	    },
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div
+			:title="sidebarTooltipText"
+			@click="onMembersClick"
+			class="bx-im-chat-header__subtitle_content"
+			:class="{'--click': needShowSubtitleCursor}"
+		>
+			{{ userCounterText }}
+		</div>
+	`
+	};
+
+	// @vue/component
+	const GroupChatTitle = {
+	  name: 'GroupChatTitle',
+	  components: {
+	    EditableChatTitle: im_v2_component_elements_chatTitle.EditableChatTitle,
+	    EntityLink,
+	    LineLoader: im_v2_component_elements_loader.LineLoader,
+	    FadeAnimation: im_v2_component_animation.FadeAnimation,
+	    UserCounter
+	  },
+	  inject: ['withSidebar'],
+	  props: {
+	    dialogId: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  emits: ['newTitle'],
+	  computed: {
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    hasEntityLink() {
+	      var _this$dialog$entityLi;
+	      return Boolean((_this$dialog$entityLi = this.dialog.entityLink) == null ? void 0 : _this$dialog$entityLi.url);
+	    }
+	  },
+	  methods: {
 	    loc(phraseCode) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode);
 	    }
@@ -172,14 +221,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<LineLoader v-if="!dialog.inited" :width="50" :height="16" />
 			<FadeAnimation :duration="100">
 				<div v-if="dialog.inited" class="bx-im-chat-header__subtitle_container">
-					<div
-						:title="sidebarTooltipText"
-						@click="onMembersClick"
-						class="bx-im-chat-header__subtitle_content"
-						:class="{'--click': needShowSubtitleCursor}"
-					>
-						{{ userCounterText }}
-					</div>
+					<UserCounter :dialogId="dialogId" />
 					<EntityLink v-if="hasEntityLink" :dialogId="dialogId" />
 				</div>
 			</FadeAnimation>
@@ -193,7 +235,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const UserTitle = {
 	  name: 'UserTitle',
 	  components: {
-	    ChatTitle: im_v2_component_elements.ChatTitle
+	    ChatTitle: im_v2_component_elements_chatTitle.ChatTitle
 	  },
 	  props: {
 	    dialogId: {
@@ -238,7 +280,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		<div class="bx-im-chat-header__info">
 			<div class="bx-im-chat-header__title --user">
 				<a :href="userLink" target="_blank" class="bx-im-chat-header__title_container">
-					<ChatTitle :dialogId="dialogId" />
+					<ChatTitle :dialogId="dialogId" :withAutoDelete="true" :withMute="true" />
 				</a>
 				<span class="bx-im-chat-header__user-status">{{ userLastOnlineText }}</span>
 			</div>
@@ -253,7 +295,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const HeaderAvatar = {
 	  name: 'HeaderAvatar',
 	  components: {
-	    ChatAvatar: im_v2_component_elements.ChatAvatar
+	    ChatAvatar: im_v2_component_elements_avatar.ChatAvatar
 	  },
 	  props: {
 	    dialogId: {
@@ -263,7 +305,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  emits: ['avatarClick'],
 	  computed: {
-	    AvatarSize: () => im_v2_component_elements.AvatarSize,
+	    AvatarSize: () => im_v2_component_elements_avatar.AvatarSize,
 	    dialog() {
 	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
@@ -274,13 +316,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByRole(im_v2_const.ActionByRole.avatar, this.dialogId);
 	    },
 	    isNotes() {
-	      return Number.parseInt(this.dialogId, 10) === im_v2_application_core.Core.getUserId();
+	      return this.$store.getters['chats/isNotes'](this.dialogId);
 	    },
 	    userLink() {
 	      return im_v2_lib_utils.Utils.user.getProfileLink(this.dialogId);
 	    },
 	    avatarType() {
-	      return this.isNotes ? im_v2_component_elements.ChatAvatarType.notes : '';
+	      return this.isNotes ? im_v2_component_elements_avatar.ChatAvatarType.notes : '';
 	    },
 	    needProfileLink() {
 	      return this.isUser && !this.isNotes;
@@ -307,7 +349,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    getChatService() {
 	      if (!this.chatService) {
-	        this.chatService = new im_v2_provider_service.ChatService();
+	        this.chatService = new im_v2_provider_service_chat.ChatService();
 	      }
 	      return this.chatService;
 	    }
@@ -472,18 +514,18 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const ChatHeader = {
 	  name: 'ChatHeader',
 	  components: {
-	    ChatAvatar: im_v2_component_elements.ChatAvatar,
+	    ChatAvatar: im_v2_component_elements_avatar.ChatAvatar,
 	    CallHeaderButton,
 	    GroupChatTitle,
 	    UserChatTitle: UserTitle,
-	    LineLoader: im_v2_component_elements.LineLoader,
+	    LineLoader: im_v2_component_elements_loader.LineLoader,
 	    FadeAnimation: im_v2_component_animation.FadeAnimation,
 	    HeaderAvatar,
 	    AddToChatButton,
 	    SearchButton,
 	    SidebarButton
 	  },
-	  inject: ['currentSidebarPanel', 'withSidebar'],
+	  inject: ['withSidebar'],
 	  props: {
 	    dialogId: {
 	      type: String,
@@ -552,9 +594,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByRole(im_v2_const.ActionByRole.openSidebar, this.dialogId);
 	    },
-	    isMembersPanelActive() {
-	      return this.currentSidebarPanel === im_v2_const.SidebarDetailBlock.members;
-	    },
 	    chatTitleComponent() {
 	      return this.isUser ? UserTitle : GroupChatTitle;
 	    },
@@ -562,6 +601,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return {
 	        '--compact': this.compactMode
 	      };
+	    }
+	  },
+	  created() {
+	    if (this.isInited) {
+	      this.emitButtonPanelReady();
 	    }
 	  },
 	  mounted() {
@@ -584,36 +628,20 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        this.compactMode = newCompactMode;
 	      }
 	    },
-	    onMembersClick() {
-	      if (!this.isInited) {
-	        return;
-	      }
-	      if (this.isMembersPanelActive) {
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.close, {
-	          panel: im_v2_const.SidebarDetailBlock.members
-	        });
-	        return;
-	      }
-	      main_core_events.EventEmitter.emit(im_v2_const.EventType.sidebar.open, {
-	        panel: im_v2_const.SidebarDetailBlock.members,
-	        dialogId: this.dialogId
-	      });
-	    },
 	    onNewTitleSubmit(newTitle) {
-	      this.getChatService().renameChat(this.dialogId, newTitle).catch(() => {
-	        BX.UI.Notification.Center.notify({
-	          content: this.loc('IM_CONTENT_CHAT_HEADER_RENAME_ERROR')
-	        });
-	      });
+	      void this.getChatService().renameChat(this.dialogId, newTitle);
 	    },
 	    getChatService() {
 	      if (!this.chatService) {
-	        this.chatService = new im_v2_provider_service.ChatService();
+	        this.chatService = new im_v2_provider_service_chat.ChatService();
 	      }
 	      return this.chatService;
 	    },
 	    getResizeObserver() {
 	      return this.resizeObserver;
+	    },
+	    emitButtonPanelReady() {
+	      this.$emit('buttonPanelReady');
 	    },
 	    loc(phraseCode, replacements = {}) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
@@ -628,14 +656,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 						<component
 							:is="chatTitleComponent"
 							:dialogId="dialogId"
-							@membersClick="onMembersClick"
 							@newTitle="onNewTitleSubmit"
 						/>
 					</slot>
 				</slot>
 			</div>
 			<LineLoader v-if="!isInited" :width="45" :height="22" />
-			<FadeAnimation @afterEnter="$emit('buttonPanelReady')" :duration="100">
+			<FadeAnimation @afterEnter="emitButtonPanelReady" :duration="100">
 				<div v-if="isInited" class="bx-im-chat-header__right">
 					<slot name="before-actions"></slot>
 					<CallHeaderButton v-if="showCallButton" :dialogId="dialogId" :compactMode="compactMode" />
@@ -742,23 +769,25 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    async onDrop(event) {
 	      event.preventDefault();
-	      const uploaderId = await this.getUploadingService().uploadFromDragAndDrop({
-	        event,
+	      const multiUploadingService = this.getMultiUploadingService();
+	      const multiUploadingResult = await multiUploadingService.upload({
+	        files: await ui_uploader_core.getFilesFromDataTransfer(event.dataTransfer),
 	        dialogId: this.dialogId,
-	        sendAsFile: false
+	        sendAsFile: false,
+	        autoUpload: false
 	      });
-	      if (main_core.Type.isStringFilled(uploaderId)) {
+	      if (main_core.Type.isArrayFilled(multiUploadingResult.uploaderIds)) {
 	        main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.openUploadPreview, {
-	          uploaderId
+	          multiUploadingResult
 	        });
 	      }
 	      this.showDropArea = false;
 	    },
-	    getUploadingService() {
-	      if (!this.uploadingService) {
-	        this.uploadingService = im_v2_provider_service.UploadingService.getInstance();
+	    getMultiUploadingService() {
+	      if (!this.multiUploadingService) {
+	        this.multiUploadingService = new im_v2_provider_service_uploading.MultiUploadingService();
 	      }
-	      return this.uploadingService;
+	      return this.multiUploadingService;
 	    },
 	    loc(phraseCode) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode);
@@ -785,7 +814,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	// @vue/component
 	const MutePanel = {
 	  components: {
-	    ChatButton: im_v2_component_elements.Button
+	    ChatButton: im_v2_component_elements_button.ChatButton
 	  },
 	  props: {
 	    dialogId: {
@@ -797,7 +826,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    return {};
 	  },
 	  computed: {
-	    ButtonSize: () => im_v2_component_elements.ButtonSize,
+	    ButtonSize: () => im_v2_component_elements_button.ButtonSize,
 	    dialog() {
 	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
@@ -829,7 +858,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    getChatService() {
 	      if (!this.chatService) {
-	        this.chatService = new im_v2_provider_service.ChatService();
+	        this.chatService = new im_v2_provider_service_chat.ChatService();
 	      }
 	      return this.chatService;
 	    },
@@ -853,7 +882,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	// @vue/component
 	const JoinPanel = {
 	  components: {
-	    ChatButton: im_v2_component_elements.Button
+	    ChatButton: im_v2_component_elements_button.ChatButton
 	  },
 	  props: {
 	    dialogId: {
@@ -861,12 +890,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      required: true
 	    }
 	  },
-	  data() {
-	    return {};
-	  },
 	  computed: {
-	    ButtonSize: () => im_v2_component_elements.ButtonSize,
-	    ButtonColor: () => im_v2_component_elements.ButtonColor
+	    ButtonSize: () => im_v2_component_elements_button.ButtonSize,
+	    ButtonColor: () => im_v2_component_elements_button.ButtonColor
 	  },
 	  methods: {
 	    onButtonClick() {
@@ -874,7 +900,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    getChatService() {
 	      if (!this.chatService) {
-	        this.chatService = new im_v2_provider_service.ChatService();
+	        this.chatService = new im_v2_provider_service_chat.ChatService();
 	      }
 	      return this.chatService;
 	    },
@@ -899,7 +925,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const BulkActionsPanel = {
 	  name: 'BulkActionsPanel',
 	  components: {
-	    ChatButton: im_v2_component_elements.Button,
+	    ChatButton: im_v2_component_elements_button.ChatButton,
 	    ForwardPopup: im_v2_component_entitySelector.ForwardPopup
 	  },
 	  directives: {
@@ -918,9 +944,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    };
 	  },
 	  computed: {
-	    ButtonSize: () => im_v2_component_elements.ButtonSize,
-	    ButtonIcon: () => im_v2_component_elements.ButtonIcon,
-	    ButtonColor: () => im_v2_component_elements.ButtonColor,
+	    ButtonSize: () => im_v2_component_elements_button.ButtonSize,
+	    ButtonIcon: () => im_v2_component_elements_button.ButtonIcon,
+	    ButtonColor: () => im_v2_component_elements_button.ButtonColor,
 	    dialog() {
 	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
@@ -983,6 +1009,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  methods: {
 	    onForwardButtonClick() {
+	      im_v2_lib_analytics.Analytics.getInstance().messageForward.onClickForward(this.dialogId);
 	      this.messagesIds = [...this.selectedMessages];
 	      this.showForwardPopup = true;
 	    },
@@ -1006,7 +1033,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    getMessageService() {
 	      if (!this.messageService) {
-	        this.messageService = new im_v2_provider_service.MessageService({
+	        this.messageService = new im_v2_provider_service_message.MessageService({
 	          chatId: this.dialog.chatId
 	        });
 	      }
@@ -1059,6 +1086,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<ForwardPopup
 					v-if="showForwardPopup"
 					:messagesIds="messagesIds"
+					:dialogId="dialogId"
 					@close="closeForwardPopup"
 				/>
 			</div>
@@ -1114,15 +1142,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      type: String,
 	      default: ''
 	    },
-	    backgroundId: {
-	      type: [Number, String, null],
-	      default: null
-	    },
 	    withSidebar: {
 	      type: Boolean,
 	      default: true
 	    },
 	    withHeader: {
+	      type: Boolean,
+	      default: true
+	    },
+	    withDropArea: {
 	      type: Boolean,
 	      default: true
 	    }
@@ -1139,6 +1167,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
 	    canSend() {
+	      if (!this.dialog.isTextareaEnabled) {
+	        return false;
+	      }
 	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformActionByRole(im_v2_const.ActionByRole.send, this.dialog.dialogId);
 	    },
 	    isGuest() {
@@ -1155,10 +1186,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return [`--${alignment}-align`];
 	    },
 	    backgroundStyle() {
-	      if (this.backgroundId) {
-	        return im_v2_lib_theme.ThemeManager.getBackgroundStyleById(this.backgroundId);
-	      }
-	      return im_v2_lib_theme.ThemeManager.getCurrentBackgroundStyle();
+	      return im_v2_lib_theme.ThemeManager.getCurrentBackgroundStyle(this.dialogId);
 	    },
 	    dialogContainerStyle() {
 	      let textareaHeight = this.textareaHeight;
@@ -1246,6 +1274,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<slot v-if="withHeader" name="header">
 					<ChatHeader :dialogId="dialogId" :key="dialogId" />
 				</slot>
+				<slot name="sub-header"></slot>
 				<div :style="dialogContainerStyle" class="bx-im-content-chat__dialog_container">
 					<Transition name="loading-bar-transition">
 						<LoadingBar v-if="showLoadingBar" />
@@ -1264,7 +1293,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 							<ChatTextarea
 								:dialogId="dialogId"
 								:key="dialogId"
-								:withAudioInput="false"
 								@mounted="onTextareaMount"
 							/>
 						</slot>
@@ -1274,7 +1302,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					</slot>
 					<MutePanel v-else :dialogId="dialogId" />
 				</Transition>
-				<DropArea :dialogId="dialogId" :container="$refs.content || {}" :key="dialogId" />
+				<DropArea
+					v-if="withDropArea"
+					:key="dialogId" 
+					:dialogId="dialogId" 
+					:container="$refs.content || {}" 
+				/>
 				<!-- End textarea -->
 			</div>
 			<ChatSidebar
@@ -1288,7 +1321,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	};
 
 	exports.ChatHeader = ChatHeader;
+	exports.UserCounter = UserCounter;
 	exports.BaseChatContent = BaseChatContent;
 
-}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX,BX.Call.Component,BX.Messenger.v2.Component.Animation,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Vue3,BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.UI.Uploader,BX,BX.Event,BX.Vue3.Directives,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.EntitySelector,BX.Messenger.v2.Lib,BX.Messenger.v2.Service));
+}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.Call.Component,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Animation,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Vue3,BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component,BX.Messenger.v2.Lib,BX.UI.Uploader,BX,BX.Messenger.v2.Service,BX.Messenger.v2.Service,BX.Event,BX.Vue3.Directives,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.EntitySelector,BX.Messenger.v2.Lib,BX.Messenger.v2.Service));
 //# sourceMappingURL=registry.bundle.js.map

@@ -56,15 +56,15 @@ export const BaseChatContent = {
 			type: String,
 			default: '',
 		},
-		backgroundId: {
-			type: [Number, String, null],
-			default: null,
-		},
 		withSidebar: {
 			type: Boolean,
 			default: true,
 		},
 		withHeader: {
+			type: Boolean,
+			default: true,
+		},
+		withDropArea: {
 			type: Boolean,
 			default: true,
 		},
@@ -85,6 +85,11 @@ export const BaseChatContent = {
 		},
 		canSend(): boolean
 		{
+			if (!this.dialog.isTextareaEnabled)
+			{
+				return false;
+			}
+
 			return PermissionManager.getInstance().canPerformActionByRole(ActionByRole.send, this.dialog.dialogId);
 		},
 		isGuest(): boolean
@@ -107,12 +112,7 @@ export const BaseChatContent = {
 		},
 		backgroundStyle(): BackgroundStyle
 		{
-			if (this.backgroundId)
-			{
-				return ThemeManager.getBackgroundStyleById(this.backgroundId);
-			}
-
-			return ThemeManager.getCurrentBackgroundStyle();
+			return ThemeManager.getCurrentBackgroundStyle(this.dialogId);
 		},
 		dialogContainerStyle(): Object
 		{
@@ -215,6 +215,7 @@ export const BaseChatContent = {
 				<slot v-if="withHeader" name="header">
 					<ChatHeader :dialogId="dialogId" :key="dialogId" />
 				</slot>
+				<slot name="sub-header"></slot>
 				<div :style="dialogContainerStyle" class="bx-im-content-chat__dialog_container">
 					<Transition name="loading-bar-transition">
 						<LoadingBar v-if="showLoadingBar" />
@@ -233,7 +234,6 @@ export const BaseChatContent = {
 							<ChatTextarea
 								:dialogId="dialogId"
 								:key="dialogId"
-								:withAudioInput="false"
 								@mounted="onTextareaMount"
 							/>
 						</slot>
@@ -243,7 +243,12 @@ export const BaseChatContent = {
 					</slot>
 					<MutePanel v-else :dialogId="dialogId" />
 				</Transition>
-				<DropArea :dialogId="dialogId" :container="$refs.content || {}" :key="dialogId" />
+				<DropArea
+					v-if="withDropArea"
+					:key="dialogId" 
+					:dialogId="dialogId" 
+					:container="$refs.content || {}" 
+				/>
 				<!-- End textarea -->
 			</div>
 			<ChatSidebar

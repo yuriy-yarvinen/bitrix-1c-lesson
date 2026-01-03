@@ -1,6 +1,4 @@
 import { EventEmitter } from 'main.core.events';
-import { Store } from 'ui.vue3.vuex';
-
 import { CopilotManager } from 'im.v2.lib.copilot';
 import { Core } from 'im.v2.application.core';
 import { Logger } from 'im.v2.lib.logger';
@@ -8,10 +6,11 @@ import { UserManager } from 'im.v2.lib.user';
 import { UuidManager } from 'im.v2.lib.uuid';
 import { InputActionListener } from 'im.v2.lib.input-action';
 import { EventType, DialogScrollThreshold, UserRole, ChatType } from 'im.v2.const';
-import { MessageService } from 'im.v2.provider.service';
+import { MessageService } from 'im.v2.provider.service.message';
 
 import { MessageDeleteManager } from './classes/message-delete-manager';
 
+import type { Store } from 'ui.vue3.vuex';
 import type { ImModelChat, ImModelMessage } from 'im.v2.model';
 
 import type {
@@ -53,7 +52,8 @@ export class MessagePullHandler
 		this.#setFiles(params);
 		this.#setAdditionalEntities(params);
 		this.#setCommentInfo(params);
-		this.#setCopilotRole(params);
+		this.#setCopilotData(params);
+		this.#setMessagesAutoDeleteConfig(params);
 
 		const messageWithTemplateId = this.#store.getters['messages/isInChatCollection']({
 			messageId: params.message.templateId,
@@ -89,8 +89,8 @@ export class MessagePullHandler
 			);
 			if (hasLoadingMessage)
 			{
-				void this.#store.dispatch('messages/deleteLoadingMessageByMessageId', {
-					messageId: params.message.templateId,
+				void this.#store.dispatch('messages/delete', {
+					id: params.message.templateId,
 				});
 			}
 
@@ -98,7 +98,7 @@ export class MessagePullHandler
 			this.#handleAddingMessageToModel(params);
 		}
 
-		InputActionListener.getInstance().stopUserActionsInChat({
+		InputActionListener.getInstance().stopAction({
 			userId: params.message.senderId,
 			dialogId: params.dialogId,
 		});
@@ -109,7 +109,7 @@ export class MessagePullHandler
 	handleMessageUpdate(params: MessageUpdateParams)
 	{
 		Logger.warn('MessagePullHandler: handleMessageUpdate', params);
-		InputActionListener.getInstance().stopUserActionsInChat({
+		InputActionListener.getInstance().stopAction({
 			userId: params.senderId,
 			dialogId: params.dialogId,
 		});
@@ -356,7 +356,7 @@ export class MessagePullHandler
 		const RELOAD_LIMIT = MessageService.getMessageRequestLimit() * 5;
 		if (dialog.inited && !chatIsOpened && unreadMessages.length > RELOAD_LIMIT)
 		{
-			this.#store.dispatch('messages/store', params.message);
+			void this.#store.dispatch('messages/store', params.message);
 			const messageService = new MessageService({ chatId: params.chatId });
 			messageService.reloadMessageList();
 
@@ -481,7 +481,7 @@ export class MessagePullHandler
 		return this.#store.getters['chats/get'](dialogId, temporary);
 	}
 
-	#setCopilotRole(params)
+	#setCopilotData(params)
 	{
 		if (!params.copilot)
 		{
@@ -490,6 +490,12 @@ export class MessagePullHandler
 
 		const copilotManager = new CopilotManager();
 		void copilotManager.handleMessageAdd(params.copilot);
+	}
+
+	#setMessagesAutoDeleteConfig(params: MessageAddParams)
+	{
+		const { messagesAutoDeleteConfigs } = params;
+		void this.#store.dispatch('chats/autoDelete/set', messagesAutoDeleteConfigs);
 	}
 
 	#prepareDeleteMessageParams(

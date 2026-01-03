@@ -5,13 +5,16 @@ import { Core } from 'im.v2.application.core';
 import { FileStatus } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 
-import type { ImModelFile } from 'im.v2.model';
+import type { ImModelFile, ImModelTranscription } from 'im.v2.model';
 
 type FilesState = {
 	collection: {
 		[fileId: string]: ImModelFile
 	},
 	temporaryFilesMap: Map<number, string>,
+	transcriptions: {
+		[fileId: string]: ImModelTranscription,
+	},
 };
 
 export class FilesModel extends BuilderModel
@@ -26,6 +29,7 @@ export class FilesModel extends BuilderModel
 		return {
 			collection: {},
 			temporaryFilesMap: new Map(),
+			transcriptions: {},
 		};
 	}
 
@@ -39,8 +43,9 @@ export class FilesModel extends BuilderModel
 			type: 'file',
 			extension: '',
 			icon: 'empty',
+			isTranscribable: false,
 			size: 0,
-			image: false,
+			image: null,
 			status: FileStatus.done,
 			progress: 100,
 			authorId: 0,
@@ -112,6 +117,10 @@ export class FilesModel extends BuilderModel
 
 				return null;
 			},
+			/** @function files/getTranscription */
+			getTranscription: (state: FilesState) => (fileId: number): ?ImModelTranscription => {
+				return state.transcriptions[fileId] || null;
+			},
 		};
 	}
 
@@ -175,6 +184,16 @@ export class FilesModel extends BuilderModel
 			setTemporaryFileMapping: (store, payload: {serverFileId: number, temporaryFileId: string}) => {
 				store.commit('setTemporaryFileMapping', payload);
 			},
+			/** @function files/setTranscription */
+			setTranscription: (store, payload: ImModelTranscription) => {
+				const { fileId, status, transcriptText } = payload;
+
+				store.commit('setTranscription', {
+					fileId,
+					status,
+					transcriptText,
+				});
+			},
 		};
 	}
 
@@ -206,6 +225,9 @@ export class FilesModel extends BuilderModel
 			},
 			setTemporaryFileMapping: (state: FilesState, payload: {serverFileId: number, temporaryFileId: string}) => {
 				state.temporaryFilesMap.set(payload.serverFileId, payload.temporaryFileId);
+			},
+			setTranscription: (state: FilesState, payload: ImModelTranscription) => {
+				state.transcriptions[payload.fileId] = { status: payload.status, transcriptText: payload.transcriptText };
 			},
 		};
 	}
@@ -308,6 +330,11 @@ export class FilesModel extends BuilderModel
 		if (Type.isString(file.authorName) || Type.isNumber(file.authorName))
 		{
 			result.authorName = file.authorName.toString();
+		}
+
+		if (Type.isBoolean(file.isTranscribable))
+		{
+			result.isTranscribable = file.isTranscribable;
 		}
 
 		if (Type.isString(file.urlPreview))

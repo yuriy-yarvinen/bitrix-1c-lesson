@@ -182,7 +182,7 @@ $MESS["MAIN_OPT_EXT_NOTE"] = "Для поддержки безопасной а�
 $MESS["MAIN_OPT_SECURE_KEY_SUCCESS"] = "Ключ шифрования успешно сгенерирован.";
 $MESS["MAIN_OPT_SECURE_KEY_ERROR"] = "Ошибка при генерации ключа шифрования.";
 $MESS["MAIN_OPT_BX_FAST_DOWNLOAD"] = "Быстрая отдача файлов через Nginx:";
-$MESS["MAIN_OPT_BX_FAST_DOWNLOAD_HINT"] = "<a href=\"https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=32&CHAPTER_ID=04900\">Двухуровневая конфигурация</a> веб-сервера позволяет ускорить отдачу пользовательских файлов с использованием <a href=\"http://wiki.nginx.org/X-accel\">Nginx</a>. <a href=\"/bitrix/admin/site_checker.php\">Проверка системы</a> поможет определить, поддерживается ли эта возможность вашим сервером. На <a href=\"https://www.1c-bitrix.ru/products/vmbitrix/index.php\">виртуальной машине &quot;1С-Битрикс&quot;</a> это работает по умолчанию.";
+$MESS["MAIN_OPT_BX_FAST_DOWNLOAD_HINT"] = "<a href=\"https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=32&CHAPTER_ID=04900\">Двухуровневая конфигурация</a> веб-сервера позволяет ускорить отдачу пользовательских файлов с использованием <a href=\"http://wiki.nginx.org/X-accel\">Nginx</a>. <a href=\"/bitrix/admin/site_checker.php\">Проверка системы</a> поможет определить, поддерживается ли эта возможность вашим сервером. На <a href=\"https://www.1c-bitrix.ru/download/vmbitrix.php\">виртуальной машине &quot;1С-Битрикс&quot;</a> это работает по умолчанию.";
 $MESS["main_sett_add_users"] = "Добавить пользователей";
 $MESS["main_sett_public_panel"] = "Панель инструментов публичного раздела";
 $MESS["main_sett_public_panel_show"] = "Всегда показывать панель для пользователей:";
@@ -263,6 +263,7 @@ $MESS["main_options_device_history_title"] = "История входов и у�
 $MESS["main_options_device_history"] = "Сохранять историю входов с устройств пользователя:";
 $MESS["main_options_device_history_days"] = "Сколько дней хранить историю входов:";
 $MESS["main_options_device_history_notify"] = "Оповещать пользователей о входе с нового устройства (<a href=\"#EMAIL_TEMPLATES_URL#\">почтовые шаблоны</a>):";
+$MESS["main_options_device_history_notify_im"] = "Оповещать пользователей в чат (требуются модули im, imbot):";
 $MESS["main_options_device_history_note"] = 'Для лучшего определения устройств настройте <a href="https://www.php.net/manual/en/function.get-browser.php" target = "_blank">browscap</a> в PHP. Используйте последнюю версию ini-файла с <a href="http://browscap.org" target="_blank">Browser Capabilities Project</a>.';
 $MESS['main_options_device_geoip'] = 'Собирать IP-геоданные для истории входов:';
 $MESS['main_options_geo'] = 'Геолокация';
@@ -272,3 +273,9 @@ $MESS['MAIN_OPTION_CONTROLLER_PROXY_PASS_SET'] = '(установлен)';
 $MESS['MAIN_OPTION_CONTROLLER_PROXY_PASS_DEL_TITLE'] = 'Удалить сохраненный пароль';
 $MESS['MAIN_OPTION_CONTROLLER_PROXY_PASS_DEL'] = 'Удалить';
 $MESS["SUP_MENU_TURN_EXPERT_MODE_ON"] = "Включить экспертный режим:";
+$MESS['main_option_additional_log_title'] = 'Дополнительное журналирование';
+$MESS['main_option_event_log_syslog'] = 'Записывать события в syslog (JSON):';
+$MESS['main_option_event_log_file'] = 'Записывать события в файл (JSON):';
+$MESS['main_option_event_log_file_path'] = 'Полный путь к файлу:';
+$MESS['MAIN_EVENT_LOG_GROUP_EDIT'] = 'Записывать редактирование группы:';
+$MESS['main_options_device_history_notify_only'] = 'Оповещать только указанных пользователей:';

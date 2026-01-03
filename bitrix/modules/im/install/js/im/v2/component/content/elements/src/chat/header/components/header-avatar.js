@@ -1,9 +1,9 @@
 import { Core } from 'im.v2.application.core';
-import { ChatAvatar, ChatAvatarType, AvatarSize } from 'im.v2.component.elements';
+import { ChatAvatar, ChatAvatarType, AvatarSize } from 'im.v2.component.elements.avatar';
 import { ActionByRole, ChatType } from 'im.v2.const';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { Utils } from 'im.v2.lib.utils';
-import { ChatService } from 'im.v2.provider.service';
+import { ChatService } from 'im.v2.provider.service.chat';
 
 import type { ImModelChat } from 'im.v2.model';
 
@@ -36,7 +36,7 @@ export const HeaderAvatar = {
 		},
 		isNotes(): boolean
 		{
-			return Number.parseInt(this.dialogId, 10) === Core.getUserId();
+			return this.$store.getters['chats/isNotes'](this.dialogId);
 		},
 		userLink(): string
 		{

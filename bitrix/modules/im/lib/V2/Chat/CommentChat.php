@@ -122,6 +122,16 @@ class CommentChat extends GroupChat
 		return $createResult;
 	}
 
+	public function isAutoJoinEnabled(): bool
+	{
+		return true;
+	}
+
+	public function canUserAutoJoin(?int $userId = null): bool
+	{
+		return parent::canUserAutoJoin($userId) && $this->getParentChat()->getSelfRelation() !== null;
+	}
+
 	public function join(bool $withMessage = true): Chat
 	{
 		$this->getParentChat()->join();
@@ -148,10 +158,28 @@ class CommentChat extends GroupChat
 		return $role;
 	}
 
+	public function isCounterIncrementAllowed(): bool
+	{
+		return true;
+	}
+
+	public function allowMentionAllChatNotification(): bool
+	{
+		return false;
+	}
+
+	public function onAfterMessageUpdate(Message $message): Result
+	{
+		$result = $this->subscribeUsers(true, $message->getMentionedUserIds(), $message->getPrevId());
+		$parentResult = parent::onAfterMessageUpdate($message);
+
+		return Result::merge($parentResult, $result);
+	}
+
 	protected function onAfterMessageSend(Message $message, SendingService $sendingService): void
 	{
 		$this->subscribe(true, $message->getAuthorId());
-		$this->subscribeUsers(true, $message->getUserIdsFromMention(), $message->getPrevId());
+		$this->subscribeUsers(true, $message->getMentionedUserIds(), $message->getPrevId());
 		Message\LastMessages::insert($message);
 
 		if (!$sendingService->getConfig()->skipCounterIncrements())
@@ -160,11 +188,6 @@ class CommentChat extends GroupChat
 		}
 
 		parent::onAfterMessageSend($message, $sendingService);
-	}
-
-	protected function updateRecentAfterMessageSend(\Bitrix\Im\V2\Message $message, SendingConfig $config): Result
-	{
-		return new Result();
 	}
 
 	public function filterUsersToMention(array $userIds): array
@@ -186,6 +209,11 @@ class CommentChat extends GroupChat
 		return $relations->filter(
 			fn (Relation $relation) => $parentRelations->getByUserId($relation->getUserId(), $this->getParentChatId())
 		);
+	}
+
+	public function getAllUserIdsForMention(): array
+	{
+		return $this->getParentChat()->getRelations()->getUserIds();
 	}
 
 	public function getRelationsForSendMessage(): RelationCollection
@@ -438,13 +466,16 @@ class CommentChat extends GroupChat
 			'AUTHOR_ID' => $parentChat->getAuthorId(),
 		]);
 
-		if (!$addResult->isSuccess())
+		/**
+		 * @var ?static $chat
+		 */
+		$chat = $addResult->getChat();
+
+		if (!isset($chat) || !$addResult->isSuccess())
 		{
 			return $addResult;
 		}
 
-		/** @var static $chat */
-		$chat = $addResult->getResult()['CHAT'];
 		$chat->parentMessage = $message;
 		$chat->sendPushChatCreate();
 
@@ -521,13 +552,8 @@ class CommentChat extends GroupChat
 		return 'com_create_' . $messageId;
 	}
 
-	protected function sendPushOnChangeUsers(RelationCollection $relations, array $pushMessage): void
+	protected function needToSendMessageUserDelete(): bool
 	{
-		if (!\Bitrix\Main\Loader::includeModule('pull'))
-		{
-			return;
-		}
-
-		\CPullWatch::AddToStack('IM_PUBLIC_COMMENT_' . $this->getParentChatId(), $pushMessage);
+		return false;
 	}
 }

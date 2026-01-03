@@ -6,6 +6,7 @@ import { Core } from 'im.v2.application.core';
 import { EventType } from 'im.v2.const';
 import { Analytics } from 'im.v2.lib.analytics';
 import { InputActionListener } from 'im.v2.lib.input-action';
+import { Notifier } from 'im.v2.lib.notifier';
 
 import type {
 	MessageDeletePreparedParams,
@@ -62,7 +63,7 @@ export class MessageDeleteManager
 
 	#stopWriting(dialogId: number, userId: number)
 	{
-		InputActionListener.getInstance().stopUserActionsInChat({ dialogId, userId });
+		InputActionListener.getInstance().stopAction({ dialogId, userId });
 	}
 
 	#closeChannelComments(params: MessageDeleteCompletePreparedParams)
@@ -72,12 +73,8 @@ export class MessageDeleteManager
 			dialogId: params.dialogId,
 			messageId: params.id,
 		});
-		this.#showNotification(Loc.getMessage('IM_CONTENT_CHAT_CONTEXT_MESSAGE_NOT_FOUND'));
-	}
 
-	#showNotification(text: string)
-	{
-		BX.UI.Notification.Center.notify({ content: text });
+		Notifier.message.onNotFoundError();
 	}
 
 	#prepareDialogUpdateFields(params: MessageDeleteCompletePreparedParams): DialogUpdateFieldsParams

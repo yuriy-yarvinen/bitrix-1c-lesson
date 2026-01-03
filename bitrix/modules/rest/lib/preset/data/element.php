@@ -138,7 +138,7 @@ class Element extends Base
 			'SECTION_CODE' => 'migration',
 			'ELEMENT_CODE' => 'contact-add',
 			'TITLE.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_2_TITLE',
-			'ACTIVE' => 'Y',
+			'ACTIVE' => 'N',
 			'DESCRIPTION.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_2_DESCRIPTION',
 			'ICON_CLASS' => 'rest-integration-tile-img-hidden',
 			'OPTIONS' => [
@@ -204,7 +204,7 @@ class Element extends Base
 			'CODE' => 'export-email-new-contact',
 			'ELEMENT_CODE' => 'export-email-new-contact',
 			'TITLE.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_3_TITLE',
-			'ACTIVE' => 'Y',
+			'ACTIVE' => 'N',
 			'DESCRIPTION.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_3_DESCRIPTION',
 			'SECTION_CODE' => 'migration',
 			'ICON_CLASS' => 'rest-integration-tile-img-hidden',
@@ -438,9 +438,9 @@ class Element extends Base
 		'blogpost-add' => [
 			'CODE' => 'blogpost-add',
 			'ELEMENT_CODE' => 'blogpost-add',
-			'TITLE.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_8_TITLE',
+			'TITLE.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_8_TITLE_MSGVER_1',
 			'ACTIVE' => 'Y',
-			'DESCRIPTION.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_8_DESCRIPTION',
+			'DESCRIPTION.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_8_DESCRIPTION_MSGVER_1',
 			'SECTION_CODE' => 'auto-control',
 			'ICON_CLASS' => 'rest-integration-tile-img-hidden',
 			'OPTIONS' => [
@@ -451,7 +451,7 @@ class Element extends Base
 						'METHOD' => 'log.blogpost.add',
 						'METHOD_DOWNLOAD_EXAMPLE_TYPE' => 'query',
 						'DESCRIPTION_METHOD' => [
-							'DESCRIPTION.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_8_DESCRIPTION_METHOD_DESCRIPTION',
+							'DESCRIPTION.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_8_DESCRIPTION_METHOD_DESCRIPTION_MSGVER_1',
 						],
 						'ITEMS' => [
 							[
@@ -478,7 +478,7 @@ class Element extends Base
 					'log',
 				],
 				'DESCRIPTION_SCOPE' => [
-					'DESCRIPTION.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_8_DESCRIPTION_SCOPE_DESCRIPTION',
+					'DESCRIPTION.MESSAGE_CODE' => 'REST_INTEGRATION_PATTERNS_8_DESCRIPTION_SCOPE_DESCRIPTION_MSGVER_1',
 				],
 			],
 		],
@@ -989,7 +989,7 @@ class Element extends Base
 	{
 		$result = [];
 		$cache = Cache::createInstance();
-		if ($cache->initCache(static::CACHE_TIME, 'item_' . $code . LANGUAGE_ID, static::CACHE_DIR))
+		if ($cache->initCache(static::CACHE_TIME, 'item_v3_' . $code . LANGUAGE_ID, static::CACHE_DIR))
 		{
 			$result = $cache->getVars();
 		}
@@ -997,31 +997,24 @@ class Element extends Base
 		{
 			$remoteDictionary = new Integration();
 			$dictionary = $remoteDictionary->toArray();
-			if (!empty($dictionary) && false)
+			if (!empty($dictionary))
 			{
 				$dictionaryCode = array_column($dictionary, 'code');
 				$key = array_search($code, $dictionaryCode, true);
 				if ($key !== false)
 				{
-					$el = $dictionary[$key];
-					if (!empty($el['option']))
-					{
-						$data = Json::decode(base64_decode($el['option']));
-						if (is_array($data))
-						{
-							$data = static::changeMessage($data);
-							$data['CODE'] = $data['ELEMENT_CODE'];
-							$result = $data;
-						}
-					}
+					$result = self::prepareElement($dictionary[$key]);
 				}
 			}
+
 			if (empty($result) && !empty(static::DEFAULT_DATA[$code]))
 			{
 				$result = static::changeMessage(static::DEFAULT_DATA[$code]);
 				$docUrl = DocUrl::createByDefault()->getDocUrl();
 				static::changeInformationUrl($result, $docUrl);
 			}
+
+			$result = $result['ACTIVE'] === 'Y' ? $result : [];
 
 			$cache->endDataCache($result);
 		}
@@ -1039,7 +1032,7 @@ class Element extends Base
 	{
 		$result = [];
 		$cache = Cache::createInstance();
-		if ($cache->initCache(static::CACHE_TIME, 'section_' . $sectionCode . LANGUAGE_ID, static::CACHE_DIR))
+		if ($cache->initCache(static::CACHE_TIME, 'section_v3_' . $sectionCode . LANGUAGE_ID, static::CACHE_DIR))
 		{
 			$result = $cache->getVars();
 		}
@@ -1049,15 +1042,10 @@ class Element extends Base
 
 			foreach ($dictionary as $el)
 			{
-				if (!empty($el['option']))
+				$data = static::prepareElement($el);
+				if (is_array($data) && $sectionCode === $data['SECTION_CODE'])
 				{
-					$data = Json::decode(base64_decode($el['option']));
-					if (is_array($data) && $sectionCode === $data['SECTION_CODE'])
-					{
-						$data = static::changeMessage($data);
-						$data['CODE'] = $data['ELEMENT_CODE'];
-						$result[$data['CODE']] = $data;
-					}
+					$result[$data['CODE']] = $data;
 				}
 			}
 
@@ -1075,11 +1063,40 @@ class Element extends Base
 					}
 				}
 			}
+			$result = array_filter($result, static function ($item) {
+				return $item['ACTIVE'] === 'Y';
+			});
 
 			$cache->endDataCache($result);
 		}
 
 		return $result;
+	}
+
+	private static function prepareElement(mixed $element): ?array
+	{
+		if (is_array($element) && !empty($element['option']))
+		{
+			$data = Json::decode(base64_decode($element['option']));
+			if (is_array($data))
+			{
+				$elementsInSystem = array_filter(static::DEFAULT_DATA, static function ($itemInSystem) use ($data) {
+					return $itemInSystem['CODE'] === $data['ELEMENT_CODE'];
+				});
+				$elementInSystem = empty($elementsInSystem) ? null : reset($elementsInSystem);
+
+				$data = static::changeMessage($data);
+				$data['CODE'] = $data['ELEMENT_CODE'];
+				if (empty($elementInSystem) || $elementInSystem['ACTIVE'] === 'N')
+				{
+					$data['ACTIVE'] = 'N';
+				}
+
+				return $data;
+			}
+		}
+
+		return null;
 	}
 
 	private static function changeInformationUrl(array &$data, Uri $docUrl): void

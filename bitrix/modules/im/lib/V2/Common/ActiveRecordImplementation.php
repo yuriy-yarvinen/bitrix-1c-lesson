@@ -341,7 +341,7 @@ trait ActiveRecordImplementation
 
 			if (
 				isset($field['field'])
-				&& (isset($this->{$field['field']}) || $field['nullable'] === true)
+				&& (isset($this->{$field['field']}) || ($field['nullable'] ?? false) === true)
 			)
 			{
 				if (
@@ -378,6 +378,10 @@ trait ActiveRecordImplementation
 		if (!$this->isChanged())
 		{
 			return $result->setResult(['IS_CHANGES' => false]);
+		}
+		if ($result->getData()['SKIP_SAVE'] ?? false)
+		{
+			return $result;
 		}
 
 		$saveResult = $this->getDataEntity()->save();
