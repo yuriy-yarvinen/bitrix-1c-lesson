@@ -1,0 +1,83 @@
+############################################
+# ОС и IDE
+############################################
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*.log
+
+############################################
+# Bitrix core (НЕ ХРАНИМ В GIT)
+############################################
+/bitrix/cache/
+/bitrix/managed_cache/
+/bitrix/stack_cache/
+/bitrix/backup/
+/bitrix/tmp/
+/bitrix/php_interface/dbconn.php
+/bitrix/php_interface/dbconn.php.bak
+/bitrix/php_interface/dbconn.php.old
+/bitrix/php_interface/dbconn.php~
+/bitrix/.settings.php
+/bitrix/.settings.php.bak
+
+############################################
+# Uploads / runtime data
+############################################
+/upload/
+/upload_tmp/
+
+############################################
+# Marketplace / updates
+############################################
+/bitrix/updates/
+/bitrix/modules/*/install/version.php
+
+############################################
+# Logs
+############################################
+/bitrix/php_interface/error.log
+/bitrix/php_interface/debug.log
+/bitrix/admin/*.log
+
+############################################
+# Environment / secrets
+############################################
+.env
+.env.*
+!.env.example
+
+############################################
+# Composer / node
+############################################
+/vendor/
+/node_modules/
+/npm-debug.log
+/yarn-error.log
+
+############################################
+# PHPUnit / tests
+############################################
+/.phpunit.result.cache
+/phpunit.xml
+/phpunit.xml.dist
+
+############################################
+# Backup / dump
+############################################
+*.sql
+*.sql.gz
+*.tar
+*.zip
+*.gz
+*.bak
+
+############################################
+# Temporary files
+############################################
+*.tmp
+*.cache
+*.pid
