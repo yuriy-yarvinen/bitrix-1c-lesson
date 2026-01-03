@@ -22,6 +22,8 @@ $curPage = $APPLICATION->GetCurPage(true);
 	<? $APPLICATION->ShowHead(); ?>
 </head>
 <body class="bx-background-image bx-theme-<?=$theme?>" <?$APPLICATION->ShowProperty("backgroundImage");?>>
+
+
 <div id="panel"><? $APPLICATION->ShowPanel(); ?></div>
 <?$APPLICATION->IncludeComponent(
 	"bitrix:eshop.banner",
@@ -29,6 +31,16 @@ $curPage = $APPLICATION->GetCurPage(true);
 	array()
 );?>
 <div class="bx-wrapper" id="bx_eshop_wrap">
+	<div id="header">
+<?$APPLICATION->IncludeComponent("bitrix:main.include", ".default", array(
+	"AREA_FILE_SHOW" => "sect",
+	"AREA_FILE_SUFFIX" => "headerinc",
+	"AREA_FILE_RECURSIVE" => "Y",
+	"EDIT_TEMPLATE" => "sect_headerinc.php"
+	),
+	false
+);?>
+</div>
 	<header class="bx-header">
 		<div class="bx-header-section container">
 			<!--region bx-header-->
