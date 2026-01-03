@@ -7,7 +7,6 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
-*.log
 
 ############################################
 # Bitrix core (НЕ ХРАНИМ В GIT)
