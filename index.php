@@ -1,162 +1,119 @@
-<?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetTitle("Интернет-магазин \"Одежда\"");
-?>
-<?if (IsModuleInstalled("advertising")):?>
-	<div class="mb-5">
-		<?$APPLICATION->IncludeComponent(
-			"bitrix:advertising.banner",
-			"bootstrap_v4",
-			array(
-				"COMPONENT_TEMPLATE" => "bootstrap_v4",
-				"TYPE" => "MAIN",
-				"NOINDEX" => "Y",
-				"QUANTITY" => "3",
-				"BS_EFFECT" => "fade",
-				"BS_CYCLING" => "N",
-				"BS_WRAP" => "Y",
-				"BS_PAUSE" => "Y",
-				"BS_KEYBOARD" => "Y",
-				"BS_ARROW_NAV" => "Y",
-				"BS_BULLET_NAV" => "Y",
-				"BS_HIDE_FOR_TABLETS" => "N",
-				"BS_HIDE_FOR_PHONES" => "Y",
-				"CACHE_TYPE" => "A",
-				"CACHE_TIME" => "36000000",
-			),
-			false
-		);?>
+<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");?>
+<!-- About Section -->
+	<section class="page-section bg-primary" id="home">
+		<div class="container">
+			<div class="row justify-content-center">
+			<div class="col-lg-8 text-center">
+			<h2 class="text-white mt-0">О прикорме</h2>
+			<hr class="divider light my-4">
+				<p class="text-white-50 mb-4">Споры о том, на что ловить и чем лучше прикармливать, наверное, никогда не закончатся. Одни предпочи-тают новомодные прикор-мки, изготовленные фирма-ми, специализи-рующимися на их производ-стве; другие ни за что не променяют кастрюлю с душистым варевом, над которой они колдовали не один час, словно баба-яга над зельем. Но речь не об этом. Я не буду давать советы и рецепты, а выскажусь по поводу некоторых заблуждений. В большинстве статей пишут, что рыбу можно перекормить большим количеством прикормки. Но никто не пишет конкретных цифр - сколько "много", а сколько "мало" или "достаточно". Потому что никто не знает и никогда не узнает, сколько же это "много". Для одного и килограмм - уже много, а для другого и ведра кажется мало. Но причина не в этом. Давайте на проблему посмотрим с другой стороны.
+			</div>
+			</div>
+		</div>
+	</section>
+<!-- Services Section -->
+	<section class="page-section">
+		<div class="container">
+		<h2 class="text-center mt-0">Почему мы?</h2>
+		<hr class="divider my-4">
+    	</div>
+	</section>
+<!-- Portfolio Section -->
+	<section id="portfolio">
+		<div class="container-fluid p-0">
+			<div class="row no-gutters">
+			<div class="col-lg-4 col-sm-6">
+				<a class="portfolio-box" href="<?=SITE_TEMPLATE_PATH?>/img/1.jpg">
+				<img class="img-fluid" src="<?=SITE_TEMPLATE_PATH?>/img/1.jpg" alt="">
+				<div class="portfolio-box-caption">
+				<div class="project-name">Прекрасные пейзажи</div>
+				</div>
+			</a>
+		</div>
+			<div class="col-lg-4 col-sm-6">
+			<a class="portfolio-box" href="<?=SITE_TEMPLATE_PATH?>/img/2.jpg">
+				<img class="img-fluid" src="<?=SITE_TEMPLATE_PATH?>/img/2.jpg" alt="">
+				<div class="portfolio-box-caption">
+				<div class="project-name">Крупная рыба</div>
+				</div>
+			</a>
+			</div>
+		<div class="col-lg-4 col-sm-6">
+			<a class="portfolio-box" href="<?=SITE_TEMPLATE_PATH?>/img/3.jpg">
+				<img class="img-fluid" src="<?=SITE_TEMPLATE_PATH?>/img/3.jpg" alt="">
+				<div class="portfolio-box-caption">
+				<div class="project-name">Тихие места</div>
+				</div>
+			</a>
+		</div>
+		<div class="col-lg-4 col-sm-6">
+			<a class="portfolio-box" href="<?=SITE_TEMPLATE_PATH?>/img/4.jpg">
+				<img class="img-fluid" src="<?=SITE_TEMPLATE_PATH?>/img/4.jpg" alt="">
+				<div class="portfolio-box-caption">
+				<div class="project-name">Дзен</div>
+				</div>
+			</a>
+		</div>
+		<div class="col-lg-4 col-sm-6">
+			<a class="portfolio-box" href="<?=SITE_TEMPLATE_PATH?>/img/5.jpg">
+				<img class="img-fluid" src="<?=SITE_TEMPLATE_PATH?>/img/5.jpg" alt="">
+				<div class="portfolio-box-caption">
+				<div class="project-name">Оснащение плавсредствами</div>
+				</div>
+			</a>
+		</div>
+		<div class="col-lg-4 col-sm-6">
+			<a class="portfolio-box" href="<?=SITE_TEMPLATE_PATH?>/img/6.jpg">
+				<img class="img-fluid" src="<?=SITE_TEMPLATE_PATH?>/img/6.jpg" alt="">
+				<div class="portfolio-box-caption p-3">
+				<div class="project-name">Хорошее настроение</div>
+				</div>
+			</a>
+		</div>
+		</div>
 	</div>
-<?endif?>
+</section>
+<!-- Call to Action Section -->
+<section class="page-section bg-dark text-white" id="news">
+	<div class="container text-center">
+		<h2 class="mb-0">Новости</h2>
+			<hr class="divider my-4">
+	</div>
+	<div class="container text-center">
+		<div class="row justify-content-center">
+			<div class="col-lg-4 text-center">
+				<div class="card bg-secondary border border-dark">
+					<img class="card-img-top" src="<?=SITE_TEMPLATE_PATH?>/img/1.jpg" alt="News image cap">
+					<div class="card-body ">
+					<h5 class="card-title">News title
+						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+						<a href="#" class="btn btn-primary">Go somewhere</a>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4 text-center">
+				<div class="card bg-secondary border border-dark">
+					<img class="card-img-top" src="<?=SITE_TEMPLATE_PATH?>/img/2.jpg" alt="News image cap">
+					<div class="card-body">
+						<h5 class="card-title">News title</h5>
+						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+						<a href="#" class="btn btn-primary">Go somewhere</a>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-4 text-center">
+				<div class="card bg-secondary border border-dark">
+					<img class="card-img-top" src="<?=SITE_TEMPLATE_PATH?>/img/3.jpg" alt="News image cap">
+					<div class="card-body">
+						<h5 class="card-title">News title</h5>
+						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+						<a href="#" class="btn btn-primary">Go somewhere</a>
+					</div>
+				</div>
+			</div>
+		</div>
+    </div>
+</section>
 
-<?
-global $trendFilter;
-$trendFilter = array('PROPERTY_TREND' => '4');
-?>
-<h2>Тренды сезона</h2>
-<?$APPLICATION->IncludeComponent(
-	"bitrix:catalog.section",
-	"bootstrap_v4",
-	array(
-		"IBLOCK_TYPE_ID" => "catalog",
-		"IBLOCK_ID" => "2",
-		"BASKET_URL" => "/personal/cart/",
-		"COMPONENT_TEMPLATE" => "",
-		"IBLOCK_TYPE" => "catalog",
-		"SECTION_ID" => $_REQUEST["SECTION_ID"],
-		"SECTION_CODE" => "",
-		"SECTION_USER_FIELDS" => array(
-			0 => "",
-			1 => "",
-		),
-		"ELEMENT_SORT_FIELD" => "sort",
-		"ELEMENT_SORT_ORDER" => "desc",
-		"ELEMENT_SORT_FIELD2" => "id",
-		"ELEMENT_SORT_ORDER2" => "desc",
-		"FILTER_NAME" => "trendFilter",
-		"INCLUDE_SUBSECTIONS" => "Y",
-		"SHOW_ALL_WO_SECTION" => "Y",
-		"HIDE_NOT_AVAILABLE" => "N",
-		"PAGE_ELEMENT_COUNT" => "12",
-		"LINE_ELEMENT_COUNT" => "3",
-		"PROPERTY_CODE" => array(
-			0 => "NEWPRODUCT",
-			1 => "",
-		),
-		"OFFERS_FIELD_CODE" => array(
-			0 => "",
-			1 => "",
-		),
-		"OFFERS_PROPERTY_CODE" => array(
-			0 => "COLOR_REF",
-			1 => "SIZES_SHOES",
-			2 => "SIZES_CLOTHES",
-			3 => "",
-		),
-		"OFFERS_SORT_FIELD" => "sort",
-		"OFFERS_SORT_ORDER" => "desc",
-		"OFFERS_SORT_FIELD2" => "id",
-		"OFFERS_SORT_ORDER2" => "desc",
-		"TEMPLATE_THEME" => "site",
-		"PRODUCT_DISPLAY_MODE" => "Y",
-		"ADD_PICT_PROP" => "MORE_PHOTO",
-		"LABEL_PROP" => array(
-			0 => "NEWPRODUCT"
-		),
-		"OFFER_ADD_PICT_PROP" => "-",
-		"OFFER_TREE_PROPS" => array(
-			0 => "COLOR_REF",
-			1 => "SIZES_SHOES",
-			2 => "SIZES_CLOTHES",
-		),
-		"PRODUCT_SUBSCRIPTION" => "N",
-		"SHOW_DISCOUNT_PERCENT" => "N",
-		"SHOW_OLD_PRICE" => "Y",
-		"SHOW_CLOSE_POPUP" => "N",
-		"MESS_BTN_BUY" => "Купить",
-		"MESS_BTN_ADD_TO_BASKET" => "В корзину",
-		"MESS_BTN_SUBSCRIBE" => "Подписаться",
-		"MESS_BTN_DETAIL" => "Подробнее",
-		"MESS_NOT_AVAILABLE" => "Нет в наличии",
-		"SECTION_URL" => "",
-		"DETAIL_URL" => "",
-		"SECTION_ID_VARIABLE" => "SECTION_ID",
-		"SEF_MODE" => "N",
-		"AJAX_MODE" => "N",
-		"AJAX_OPTION_JUMP" => "N",
-		"AJAX_OPTION_STYLE" => "Y",
-		"AJAX_OPTION_HISTORY" => "N",
-		"AJAX_OPTION_ADDITIONAL" => "",
-		"CACHE_TYPE" => "A",
-		"CACHE_TIME" => "36000000",
-		"CACHE_GROUPS" => "Y",
-		"SET_TITLE" => "Y",
-		"SET_BROWSER_TITLE" => "Y",
-		"BROWSER_TITLE" => "-",
-		"SET_META_KEYWORDS" => "Y",
-		"META_KEYWORDS" => "-",
-		"SET_META_DESCRIPTION" => "Y",
-		"META_DESCRIPTION" => "-",
-		"SET_LAST_MODIFIED" => "N",
-		"USE_MAIN_ELEMENT_SECTION" => "N",
-		"ADD_SECTIONS_CHAIN" => "N",
-		"CACHE_FILTER" => "N",
-		"ACTION_VARIABLE" => "action",
-		"PRODUCT_ID_VARIABLE" => "id",
-		"PRICE_CODE" => array(
-			0 => "BASE",
-		),
-		"USE_PRICE_COUNT" => "N",
-		"SHOW_PRICE_COUNT" => "1",
-		"PRICE_VAT_INCLUDE" => "Y",
-		"CONVERT_CURRENCY" => "N",
-		"USE_PRODUCT_QUANTITY" => "N",
-		"PRODUCT_QUANTITY_VARIABLE" => "",
-		"ADD_PROPERTIES_TO_BASKET" => "Y",
-		"PRODUCT_PROPS_VARIABLE" => "prop",
-		"PARTIAL_PRODUCT_PROPERTIES" => "N",
-		"PRODUCT_PROPERTIES" => array(
-		),
-		"OFFERS_CART_PROPERTIES" => array(
-			0 => "COLOR_REF",
-			1 => "SIZES_SHOES",
-			2 => "SIZES_CLOTHES",
-		),
-		"ADD_TO_BASKET_ACTION" => "ADD",
-		"PAGER_TEMPLATE" => "round",
-		"DISPLAY_TOP_PAGER" => "N",
-		"DISPLAY_BOTTOM_PAGER" => "Y",
-		"PAGER_TITLE" => "Товары",
-		"PAGER_SHOW_ALWAYS" => "N",
-		"PAGER_DESC_NUMBERING" => "N",
-		"PAGER_DESC_NUMBERING_CACHE_TIME" => "36000",
-		"PAGER_SHOW_ALL" => "N",
-		"PAGER_BASE_LINK_ENABLE" => "N",
-		"SET_STATUS_404" => "N",
-		"SHOW_404" => "N",
-		"MESSAGE_404" => "",
-		"COMPATIBLE_MODE" => "N",
-	),
-	false
-);?>
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>
+  
