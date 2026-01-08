@@ -1,4 +1,4 @@
-<?$APPLICATION->IncludeComponent("bitrix:menu",".default",Array(
+<?$APPLICATION->IncludeComponent("custom:menu",".default",Array(
 		"ROOT_MENU_TYPE" => "top", 
 		"MAX_LEVEL" => "1", 
 		"CHILD_MENU_TYPE" => "top", 
