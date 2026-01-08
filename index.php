@@ -73,47 +73,62 @@
 		</div>
 	</div>
 </section>
-<!-- Call to Action Section -->
-<section class="page-section bg-dark text-white" id="news">
-	<div class="container text-center">
-		<h2 class="mb-0">Новости</h2>
-			<hr class="divider my-4">
-	</div>
-	<div class="container text-center">
-		<div class="row justify-content-center">
-			<div class="col-lg-4 text-center">
-				<div class="card bg-secondary border border-dark">
-					<img class="card-img-top" src="<?=SITE_TEMPLATE_PATH?>/img/1.jpg" alt="News image cap">
-					<div class="card-body ">
-					<h5 class="card-title">News title
-						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-						<a href="#" class="btn btn-primary">Go somewhere</a>
-					</div>
-				</div>
-			</div>
-			<div class="col-lg-4 text-center">
-				<div class="card bg-secondary border border-dark">
-					<img class="card-img-top" src="<?=SITE_TEMPLATE_PATH?>/img/2.jpg" alt="News image cap">
-					<div class="card-body">
-						<h5 class="card-title">News title</h5>
-						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-						<a href="#" class="btn btn-primary">Go somewhere</a>
-					</div>
-				</div>
-			</div>
-			<div class="col-lg-4 text-center">
-				<div class="card bg-secondary border border-dark">
-					<img class="card-img-top" src="<?=SITE_TEMPLATE_PATH?>/img/3.jpg" alt="News image cap">
-					<div class="card-body">
-						<h5 class="card-title">News title</h5>
-						<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-						<a href="#" class="btn btn-primary">Go somewhere</a>
-					</div>
-				</div>
-			</div>
-		</div>
-    </div>
-</section>
+
+<?$APPLICATION->IncludeComponent("custom:news.list","",Array(
+		"DISPLAY_DATE" => "Y",
+		"DISPLAY_NAME" => "Y",
+		"DISPLAY_PICTURE" => "Y",
+		"DISPLAY_PREVIEW_TEXT" => "Y",
+		"AJAX_MODE" => "Y",
+		"IBLOCK_TYPE" => "news",
+		"IBLOCK_ID" => "5",
+		"NEWS_COUNT" => "20",
+		"SORT_BY1" => "ACTIVE_FROM",
+		"SORT_ORDER1" => "DESC",
+		"SORT_BY2" => "SORT",
+		"SORT_ORDER2" => "ASC",
+		"FILTER_NAME" => "",
+		"FIELD_CODE" => Array("ID"),
+		"PROPERTY_CODE" => Array("DESCRIPTION"),
+		"CHECK_DATES" => "Y",
+		"DETAIL_URL" => "",
+		"PREVIEW_TRUNCATE_LEN" => "",
+		"ACTIVE_DATE_FORMAT" => "d.m.Y",
+		"SET_TITLE" => "Y",
+		"SET_BROWSER_TITLE" => "Y",
+		"SET_META_KEYWORDS" => "Y",
+		"SET_META_DESCRIPTION" => "Y",
+		"SET_LAST_MODIFIED" => "Y",
+		"INCLUDE_IBLOCK_INTO_CHAIN" => "Y",
+		"ADD_SECTIONS_CHAIN" => "Y",
+		"HIDE_LINK_WHEN_NO_DETAIL" => "Y",
+		"PARENT_SECTION" => "",
+		"PARENT_SECTION_CODE" => "",
+		"INCLUDE_SUBSECTIONS" => "Y",
+		"CACHE_TYPE" => "A",
+		"CACHE_TIME" => "3600",
+		"CACHE_FILTER" => "Y",
+		"CACHE_GROUPS" => "Y",
+		"DISPLAY_TOP_PAGER" => "Y",
+		"DISPLAY_BOTTOM_PAGER" => "Y",
+		"PAGER_TITLE" => "Новости",
+		"PAGER_SHOW_ALWAYS" => "Y",
+		"PAGER_TEMPLATE" => "",
+		"PAGER_DESC_NUMBERING" => "Y",
+		"PAGER_DESC_NUMBERING_CACHE_TIME" => "36000",
+		"PAGER_SHOW_ALL" => "Y",
+		"PAGER_BASE_LINK_ENABLE" => "Y",
+		"SET_STATUS_404" => "Y",
+		"SHOW_404" => "Y",
+		"MESSAGE_404" => "",
+		"PAGER_BASE_LINK" => "",
+		"PAGER_PARAMS_NAME" => "arrPager",
+		"AJAX_OPTION_JUMP" => "N",
+		"AJAX_OPTION_STYLE" => "Y",
+		"AJAX_OPTION_HISTORY" => "N",
+		"AJAX_OPTION_ADDITIONAL" => ""
+	)
+);?>
 
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>
   

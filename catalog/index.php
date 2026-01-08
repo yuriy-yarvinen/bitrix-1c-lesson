@@ -14,8 +14,7 @@ $APPLICATION->AddChainItem("Форум &quot;Отзывы&quot;", "/ru/forum/lis
 	"SECTION_ID_VARIABLE" => "SECTION_ID",
 	"PRODUCT_QUANTITY_VARIABLE" => "quantity",
 	"PRODUCT_PROPS_VARIABLE" => "prop",
-	"SEF_MODE" => "Y",
-	"SEF_FOLDER" => "/catalog/",
+
 	"AJAX_MODE" => "N",
 	"AJAX_OPTION_JUMP" => "N",
 	"AJAX_OPTION_STYLE" => "Y",
@@ -170,6 +169,8 @@ $APPLICATION->AddChainItem("Форум &quot;Отзывы&quot;", "/ru/forum/lis
 	"SIDEBAR_SECTION_SHOW" => "Y",
 	"SIDEBAR_DETAIL_SHOW" => "Y",
 	"SIDEBAR_PATH" => "/catalog/sidebar.php",
+		"SEF_MODE" => "Y",
+	"SEF_FOLDER" => "/catalog/",
 	"SEF_URL_TEMPLATES" => array(
 		"sections" => "",
 		"section" => "#SECTION_CODE#/",
