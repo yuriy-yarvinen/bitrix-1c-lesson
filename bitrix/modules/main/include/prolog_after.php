@@ -27,38 +27,7 @@ if (!headers_sent())
 
 $license = Main\Application::getInstance()->getLicense();
 
-if (defined("DEMO") && DEMO == "Y")
-{
-	if (defined("OLDSITEEXPIREDATE") && defined("SITEEXPIREDATE") && OLDSITEEXPIREDATE != SITEEXPIREDATE)
-	{
-		die(GetMessage("expire_mess2"));
-	}
 
-	$delta = $license->getExpireDate()?->getTimestamp() - time();
-	$daysToExpire = ($delta < 0 ? 0 : ceil($delta / 86400));
-
-	if ($daysToExpire == 0)
-	{
-		echo GetMessage("expire_mess1");
-	}
-}
-elseif (defined("TIMELIMIT_EDITION") && TIMELIMIT_EDITION == "Y")
-{
-	if (defined("OLDSITEEXPIREDATE") && defined("SITEEXPIREDATE") && OLDSITEEXPIREDATE != SITEEXPIREDATE)
-	{
-		die(GetMessage("expire_mess2"));
-	}
-
-	if (
-		($expireDate = $license->getExpireDate()) !== null
-		&& $expireDate->getTimestamp() < time()
-		&& !Main\ModuleManager::isModuleInstalled('intranet')
-	)
-	{
-		$licenseLink = $license->getRenewalLink();
-		echo GetMessage("expire_mess_timelicense2", ['#LINK#' => $licenseLink]);
-	}
-}
 
 if (COption::GetOptionString("main", "site_stopped", "N") == "Y" && !$USER->CanDoOperation('edit_other_settings'))
 {

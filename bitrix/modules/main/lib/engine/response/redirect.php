@@ -124,10 +124,6 @@ class Redirect extends Main\HttpResponse
 
 	public function send()
 	{
-		if ($this->checkTrial())
-		{
-			die(Main\Localization\Loc::getMessage('MAIN_ENGINE_REDIRECT_TRIAL_EXPIRED'));
-		}
 
 		$url = $this->getUrl();
 		$isExternal = $this->isExternalUrl($url);

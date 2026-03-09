@@ -692,5 +692,31 @@ if(isset($arResult["ID"]))
 	unset($iproperty);
 	unset($ipropertyExists);
 
+
+$db_props = CIBlockElement::GetProperty(2, 7, "sort", "asc", array());
+$PROPS = array();
+while($ar_props = $db_props->GetNext())
+$PROPS[$ar_props['CODE']] = $ar_props['VALUE'];
+
+echo '<pre>';
+print_r($PROPS);
+echo '</pre>';
+
+
+$element = new CIBlockElement;
+ $PROP = array();
+ $PROP['test']['VALUE']['TYPE'] = 'text'; // или html
+ $PROP['test']['VALUE']['TEXT'] = 'значение, которое нужно забить';
+ $arLoadArray = array(
+ 	"IBLOCK_ID"      => 2,
+ 	"PROPERTY_VALUES"=> $PROP,
+ 	"NAME"           => "test",
+ 	"IBLOCK_SECTION"           => 7,
+ 	"CODE"           => "test",
+	);
+ 	$element->Add($arLoadArray);
+echo '<pre>';
+print_r($element);
+echo '</pre>';
 	return $arResult["ELEMENTS"];
 }

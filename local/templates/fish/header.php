@@ -26,4 +26,46 @@
 	<? $APPLICATION->ShowPanel(); ?> 
 <body id="page-top">
 
+<?php
+$redisConnection = \Bitrix\Main\Application::getConnection('custom.redis')->getResource();
+// $redisConnection->setnx('foo', 'bar');
 
+echo $redisConnection->get('foo');
+$context = \Bitrix\Main\Application::getInstance()->getContext();
+print_r($context->getRequest()->get("ttt"));
+
+
+
+?>
+<script>
+
+	BX.ajax.runAction('vendor:example.Item.add', {
+		data: {
+			fields: {
+				ID: 1,
+				NAME: "test"
+			} 
+		}
+	}).then(function (response) {
+		console.log(response);
+		/**
+		{
+			"status": "success", 
+			"data": {
+				"ID": 1,
+				"NAME": "test"
+			}, 
+			"errors": []
+		}
+		**/			
+	}, function (response) {
+		//сюда будут приходить все ответы, у которых status !== 'success'
+		console.log(response);
+		/**
+		{
+			"status": "error", 
+			"errors": [...]
+		}
+		**/				
+	});
+</script>
